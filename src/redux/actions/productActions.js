@@ -23,17 +23,21 @@ export const fetchCategories = () => async (dispatch, getState) => {
   }
 };
 
-// --- Products ---
-export const fetchProducts = () => async (dispatch) => {
+export const fetchProducts = () => async (dispatch, getState) => {
+  const { category, filter, sort } = getState().product;
+
   dispatch(setFetchState("FETCHING"));
   try {
     const res = await api.get("/products", {
-  params: {
-    limit: 1000,
-    offset: 0,
-  },
-});
-    console.log("Products Response:", res.data);
+      params: {
+        limit: 1000,
+        offset: 0,
+        ...(category ? { category } : {}),
+        ...(filter ? { filter } : {}),
+        ...(sort ? { sort } : {}),
+      },
+    });
+
     dispatch(setProductList(res.data.products));
     dispatch(setTotal(res.data.total));
     dispatch(setFetchState("FETCHED"));

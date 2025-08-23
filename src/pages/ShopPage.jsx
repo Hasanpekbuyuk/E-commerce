@@ -1,7 +1,16 @@
+// src/pages/ShopPage.jsx
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
-import { fetchProducts } from "../redux/actions/productActions";
+import {
+  fetchProducts,
+} from "../redux/actions/productActions";
+import {
+  setCategory,
+  setFilter,
+  setSort,
+} from "../redux/reducers/productReducer";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const categories = [
@@ -23,14 +32,23 @@ const sponsors = [
 
 const ShopPage = () => {
   const dispatch = useDispatch();
-  const { productList, fetchState, total } = useSelector((state) => state.product);
+  const { categoryId } = useParams();
+  const { productList, fetchState, total, filter, sort } = useSelector(
+    (state) => state.product
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 12;
 
+  // URL’den kategori al
+  useEffect(() => {
+    if (categoryId) dispatch(setCategory(categoryId));
+  }, [categoryId, dispatch]);
+
+  // Parametreler değiştikçe ürünleri çek
   useEffect(() => {
     dispatch(fetchProducts());
-  }, [dispatch]);
+  }, [dispatch, categoryId, filter, sort]);
 
   // Pagination hesaplamaları
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -69,20 +87,38 @@ const ShopPage = () => {
         ))}
       </div>
 
-      {/* Filtre Alanı */}
-      <div className="flex flex-col sm:flex-row justify-between items-center border-b pb-4">
+      {/* Filtre ve Sıralama Alanı */}
+      <div className="flex flex-col sm:flex-row justify-between items-center border-b pb-4 gap-4">
         <p className="text-gray-500">
           Showing {currentProducts.length} of {total} results
         </p>
-        <div className="flex items-center gap-4">
-          <button className="border p-2 rounded"><i className="fas fa-th"></i></button>
-          <button className="border p-2 rounded"><i className="fas fa-list"></i></button>
-          <select className="border p-2 rounded">
-            <option>Popularity</option>
-            <option>Price: Low to High</option>
-            <option>Price: High to Low</option>
+        <div className="flex items-center gap-2">
+          <select
+            className="border p-2 rounded"
+            value={sort}
+            onChange={(e) => dispatch(setSort(e.target.value))}
+          >
+            <option value="">Default</option>
+            <option value="price:asc">Price: Low to High</option>
+            <option value="price:desc">Price: High to Low</option>
+            <option value="rating:asc">Rating: Low to High</option>
+            <option value="rating:desc">Rating: High to Low</option>
           </select>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
+
+          <input
+            type="text"
+            className="border p-2 rounded"
+            placeholder="Search..."
+            value={filter}
+            onChange={(e) => dispatch(setFilter(e.target.value))}
+          />
+
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={() => dispatch(fetchProducts())}
+          >
+            Filter
+          </button>
         </div>
       </div>
 
@@ -109,20 +145,8 @@ const ShopPage = () => {
 
       {/* Sayfalama */}
       <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
-        <button
-          onClick={() => handlePageChange(1)}
-          className="border px-4 py-2 rounded"
-          disabled={currentPage === 1}
-        >
-          First
-        </button>
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          className="border px-4 py-2 rounded"
-          disabled={currentPage === 1}
-        >
-          Prev
-        </button>
+        <button onClick={() => handlePageChange(1)} className="border px-4 py-2 rounded" disabled={currentPage === 1}>First</button>
+        <button onClick={() => handlePageChange(currentPage - 1)} className="border px-4 py-2 rounded" disabled={currentPage === 1}>Prev</button>
 
         {Array.from({ length: totalPages }, (_, i) => i + 1)
           .filter((page) => page >= currentPage - 2 && page <= currentPage + 2)
@@ -130,28 +154,14 @@ const ShopPage = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`border px-4 py-2 rounded ${
-                currentPage === page ? "bg-blue-500 text-white" : ""
-              }`}
+              className={`border px-4 py-2 rounded ${currentPage === page ? "bg-blue-500 text-white" : ""}`}
             >
               {page}
             </button>
           ))}
 
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          className="border px-4 py-2 rounded"
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-        <button
-          onClick={() => handlePageChange(totalPages)}
-          className="border px-4 py-2 rounded"
-          disabled={currentPage === totalPages}
-        >
-          Last
-        </button>
+        <button onClick={() => handlePageChange(currentPage + 1)} className="border px-4 py-2 rounded" disabled={currentPage === totalPages}>Next</button>
+        <button onClick={() => handlePageChange(totalPages)} className="border px-4 py-2 rounded" disabled={currentPage === totalPages}>Last</button>
       </div>
 
       {/* Sponsor Logoları */}
