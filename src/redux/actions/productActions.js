@@ -23,26 +23,28 @@ export const fetchCategories = () => async (dispatch, getState) => {
   }
 };
 
-export const fetchProducts = () => async (dispatch, getState) => {
-  const { category, filter, sort } = getState().product;
+export const fetchProducts =
+  ({ limit = 25, offset = 0 } = {}) =>
+  async (dispatch, getState) => {
+    const { category, filter, sort } = getState().product;
 
-  dispatch(setFetchState("FETCHING"));
-  try {
-    const res = await api.get("/products", {
-      params: {
-        limit: 1000,
-        offset: 0,
-        ...(category ? { category } : {}),
-        ...(filter ? { filter } : {}),
-        ...(sort ? { sort } : {}),
-      },
-    });
+    dispatch(setFetchState("FETCHING"));
+    try {
+      const res = await api.get("/products", {
+        params: {
+          limit,
+          offset,
+          ...(category ? { category } : {}),
+          ...(filter ? { filter } : {}),
+          ...(sort ? { sort } : {}),
+        },
+      });
 
-    dispatch(setProductList(res.data.products));
-    dispatch(setTotal(res.data.total));
-    dispatch(setFetchState("FETCHED"));
-  } catch (err) {
-    console.error("Error fetching products:", err);
-    dispatch(setFetchState("FAILED"));
-  }
-};
+      dispatch(setProductList(res.data.products));
+      dispatch(setTotal(res.data.total));
+      dispatch(setFetchState("FETCHED"));
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      dispatch(setFetchState("FAILED"));
+    }
+  };

@@ -1,16 +1,10 @@
-// src/pages/ShopPage.jsx
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import ReactPaginate from "react-paginate";
 import ProductCard from "../components/ProductCard";
-import {
-  fetchProducts,
-} from "../redux/actions/productActions";
-import {
-  setCategory,
-  setFilter,
-  setSort,
-} from "../redux/reducers/productReducer";
+import { fetchProducts } from "../redux/actions/productActions";
+import { setCategory, setFilter, setSort } from "../redux/reducers/productReducer";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const categories = [
@@ -37,29 +31,23 @@ const ShopPage = () => {
     (state) => state.product
   );
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const productsPerPage = 12;
 
-  // URL’den kategori al
   useEffect(() => {
     if (categoryId) dispatch(setCategory(categoryId));
   }, [categoryId, dispatch]);
 
-  // Parametreler değiştikçe ürünleri çek
   useEffect(() => {
-    dispatch(fetchProducts());
+    setCurrentPage(0);
+    dispatch(fetchProducts({ limit: productsPerPage, offset: 0 }));
   }, [dispatch, categoryId, filter, sort]);
 
-  // Pagination hesaplamaları
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = productList.slice(indexOfFirstProduct, indexOfLastProduct);
-  const totalPages = Math.ceil(productList.length / productsPerPage);
-
-  const handlePageChange = (page) => {
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-    setCurrentPage(page);
+  const handlePageClick = (data) => {
+    const selectedPage = data.selected;
+    const offset = selectedPage * productsPerPage;
+    setCurrentPage(selectedPage);
+    dispatch(fetchProducts({ limit: productsPerPage, offset }));
   };
 
   return (
@@ -87,10 +75,10 @@ const ShopPage = () => {
         ))}
       </div>
 
-      {/* Filtre ve Sıralama Alanı */}
+      {/* Filtre ve Sıralama */}
       <div className="flex flex-col sm:flex-row justify-between items-center border-b pb-4 gap-4">
         <p className="text-gray-500">
-          Showing {currentProducts.length} of {total} results
+          Showing {productList.length} of {total} results
         </p>
         <div className="flex items-center gap-2">
           <select
@@ -115,7 +103,7 @@ const ShopPage = () => {
 
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={() => dispatch(fetchProducts())}
+            onClick={() => dispatch(fetchProducts({ limit: productsPerPage, offset: 0 }))}
           >
             Filter
           </button>
@@ -129,7 +117,7 @@ const ShopPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
-          {currentProducts.map((p) => (
+          {productList.map((p) => (
             <ProductCard
               key={p.id}
               id={p.id}
@@ -143,25 +131,23 @@ const ShopPage = () => {
         </div>
       )}
 
-      {/* Sayfalama */}
-      <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
-        <button onClick={() => handlePageChange(1)} className="border px-4 py-2 rounded" disabled={currentPage === 1}>First</button>
-        <button onClick={() => handlePageChange(currentPage - 1)} className="border px-4 py-2 rounded" disabled={currentPage === 1}>Prev</button>
-
-        {Array.from({ length: totalPages }, (_, i) => i + 1)
-          .filter((page) => page >= currentPage - 2 && page <= currentPage + 2)
-          .map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`border px-4 py-2 rounded ${currentPage === page ? "bg-blue-500 text-white" : ""}`}
-            >
-              {page}
-            </button>
-          ))}
-
-        <button onClick={() => handlePageChange(currentPage + 1)} className="border px-4 py-2 rounded" disabled={currentPage === totalPages}>Next</button>
-        <button onClick={() => handlePageChange(totalPages)} className="border px-4 py-2 rounded" disabled={currentPage === totalPages}>Last</button>
+      {/* React Paginate */}
+      <div className="flex justify-center mt-6">
+        <ReactPaginate
+          previousLabel={"← Prev"}
+          nextLabel={"Next →"}
+          breakLabel={"..."}
+          pageCount={Math.ceil(total / productsPerPage)}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageClick}
+          containerClassName={"flex gap-2"}
+          pageClassName={"border px-3 py-1 rounded"}
+          activeClassName={"bg-blue-500 text-white"}
+          previousClassName={"border px-3 py-1 rounded"}
+          nextClassName={"border px-3 py-1 rounded"}
+          disabledClassName={"opacity-50 cursor-not-allowed"}
+        />
       </div>
 
       {/* Sponsor Logoları */}
