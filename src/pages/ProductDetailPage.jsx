@@ -1,10 +1,10 @@
-// src/pages/ProductDetailPage.jsx
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { Star, Heart, Eye } from "lucide-react";
+import { Star, Heart, ShoppingCart } from "lucide-react";
 import ProductCard from "../components/ProductCard";
-import { fetchProducts } from "../redux/actions/productActions";
+import { fetchProduct, fetchCategories } from "../redux/actions/productActions";
+import { addToCart } from "../redux/reducers/cartReducer"; // ✅ cartReducer’dan import
 
 const sponsors = [
   { icon: "fa-hooli" },
@@ -16,38 +16,51 @@ const sponsors = [
 ];
 
 const ProductDetailPage = () => {
-  const { id } = useParams();
+  const { gender, categoryName, categoryId, productId } = useParams();
   const dispatch = useDispatch();
-  const { productList, fetchState } = useSelector((state) => state.product);
+  const history = useHistory();
+
+  const { product, loading, error, productList, categories } = useSelector(
+    (state) => state.product
+  );
 
   useEffect(() => {
-    if (productList.length === 0) {
-      dispatch(fetchProducts());
-    }
-  }, [dispatch, productList.length]);
+    dispatch(fetchCategories());
+    dispatch(fetchProduct(productId));
+  }, [dispatch, productId]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [id]);
-
-  if (fetchState === "FETCHING") {
+  if (loading)
     return (
       <div className="flex justify-center items-center h-64">
         <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
       </div>
     );
-  }
 
-  const product = productList.find((p) => p.id === parseInt(id));
+  if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
+  if (!product) return null;
 
-  if (!product) {
-    return <div className="text-center py-20">Product not found</div>;
-  }
+  const getGenderText = (g) =>
+    g === "k" ? "kadın" : g === "e" ? "erkek" : "unisex";
+
+  // ✅ Sepete ekleme fonksiyonu
+  const handleAddToCart = () => {
+    dispatch(addToCart(product));
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 space-y-12">
+      {/* Back Button */}
+      <button
+        className="mb-4 text-blue-500 font-medium hover:text-blue-700 transition-colors duration-150"
+        onClick={() => history.goBack()}
+      >
+        ← Back
+      </button>
+
       {/* Breadcrumb */}
-      <div className="text-sm text-gray-500">Home &gt; Shop &gt; {product.name}</div>
+      <div className="text-sm text-gray-500">
+        Home &gt; Shop &gt; {product.name}
+      </div>
 
       {/* Product Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -70,16 +83,29 @@ const ProductDetailPage = () => {
               <Star
                 key={i}
                 size={18}
-                className={i < Math.round(product.rating) ? "fill-yellow-500 text-yellow-500" : "text-gray-300"}
+                className={
+                  i < Math.round(product.rating)
+                    ? "fill-yellow-500 text-yellow-500"
+                    : "text-gray-300"
+                }
               />
             ))}
-            <span className="text-gray-500">({product.sell_count} Reviews)</span>
+            <span className="text-gray-500">
+              ({product.sell_count} Reviews)
+            </span>
           </div>
 
           {/* Price & Stock */}
-          <div className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            ${product.price.toFixed(2)}
+          </div>
           <div className="text-gray-600">
-            Availability: {product.stock > 0 ? <span className="text-green-500">In Stock</span> : <span className="text-red-500">Out of Stock</span>}
+            Availability:{" "}
+            {product.stock > 0 ? (
+              <span className="text-green-500">In Stock</span>
+            ) : (
+              <span className="text-red-500">Out of Stock</span>
+            )}
           </div>
 
           {/* Description */}
@@ -99,55 +125,43 @@ const ProductDetailPage = () => {
           {/* Action Buttons */}
           <div className="flex gap-4">
             <button className="bg-blue-500 text-white px-4 py-2 rounded">
-              Select Options
+              Buy Now
             </button>
             <button className="border p-2 rounded">
               <Heart size={18} />
             </button>
-            <button className="border p-2 rounded">
-              <Eye size={18} />
+            {/* ✅ Sepete ekleme */}
+            <button
+              onClick={handleAddToCart}
+              className="border p-2 rounded hover:bg-gray-100"
+            >
+              <ShoppingCart size={18} />
             </button>
           </div>
         </div>
       </div>
 
-     {/* Tabs */}
-      <div className="border-b flex gap-8 overflow-x-auto">
-        <button className="pb-2 border-b-2 border-blue-500">Description</button>
-        <button className="pb-2 text-gray-500">Additional Information</button>
-        <button className="pb-2 text-gray-500">Reviews ({product.sell_count})</button>
-      </div>
-
-      {/* Tab Content */}
-      <div className="grid md:grid-cols-2 gap-8">
-        <div>
-          <h3 className="text-lg font-bold mb-2">{product.name}</h3>
-          <p className="text-gray-500">{product.description}</p>
-        </div>
-        <div>
-          <ul className="list-disc list-inside text-gray-500">
-            <li>Category: {product.category_id}</li>
-            <li>Store: {product.store_id}</li>
-            <li>Stock: {product.stock}</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Bestseller */}
+      {/* Bestseller / Related Products */}
       <div>
         <h3 className="text-lg font-bold mb-6">BESTSELLER PRODUCTS</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
-          {productList.slice(0, 8).map((p) => (
-            <ProductCard
-              key={p.id}
-              id={p.id}
-              image={p.images[0]?.url}
-              colors={p.colors || []}
-              name={p.name}
-              description={p.description}
-              price={p.price}
-            />
-          ))}
+          {productList.slice(0, 8).map((p) => {
+            const cat = categories.find((c) => c.id === p.category_id);
+            return (
+              <ProductCard
+                key={p.id}
+                id={p.id}
+                gender={getGenderText(cat?.gender)}
+                categoryName={cat?.title}
+                categoryId={cat?.id}
+                image={p.images[0]?.url}
+                colors={p.colors || []}
+                name={p.name}
+                description={p.description}
+                price={p.price}
+              />
+            );
+          })}
         </div>
       </div>
 

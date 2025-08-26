@@ -1,16 +1,19 @@
 import { ShoppingCart, User, Instagram, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import md5 from "md5";
 import { setUser } from "../redux/reducers/clientReducer";
 import { fetchCategories } from "../redux/actions/productActions";
+import CartDropdown from '../components/CartDropdown';
 
 const Header = () => {
   const user = useSelector((state) => state.client.user);
   const categories = useSelector((state) => state.product.categories);
+  const cart = useSelector((state) => state.cart.cart);
   const dispatch = useDispatch();
+  const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -29,11 +32,11 @@ const Header = () => {
     return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
   };
 
-  const womenCategories = categories.filter((c) => c.gender === "k")
-  const menCategories = categories.filter((c) => c.gender === "e")
+  const womenCategories = categories.filter((c) => c.gender === "k");
+  const menCategories = categories.filter((c) => c.gender === "e");
 
   return (
-    <header className="w-full">
+    <header className="w-full relative">
       {/* Topbar */}
       <div className="bg-slate-900 text-white text-sm px-4 py-2 flex justify-between items-center">
         <div className="flex gap-4">
@@ -53,7 +56,9 @@ const Header = () => {
       {/* Navbar */}
       <nav className="flex items-center justify-between px-4 py-4 border-b">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-slate-800">Bandage</Link>
+        <Link to="/" className="text-2xl font-bold text-slate-800">
+          Bandage
+        </Link>
 
         {/* Navigation Links */}
         <ul className="hidden md:flex gap-6 items-center text-slate-700 font-medium">
@@ -68,7 +73,10 @@ const Header = () => {
                 <ul className="text-sm mt-2 space-y-1">
                   {womenCategories.map((cat) => (
                     <li key={cat.id}>
-                      <Link to={`/shop/k/${cat.title}/${cat.id}`} className="flex items-center gap-2 hover:text-blue-600">
+                      <Link
+                        to={`/shop/k/${cat.title}/${cat.id}`}
+                        className="flex items-center gap-2 hover:text-blue-600"
+                      >
                         <img src={cat.img} alt={cat.title} className="w-8 h-8 object-cover rounded" />
                         {cat.title}
                       </Link>
@@ -81,7 +89,10 @@ const Header = () => {
                 <ul className="text-sm mt-2 space-y-1">
                   {menCategories.map((cat) => (
                     <li key={cat.id}>
-                      <Link to={`/shop/e/${cat.title}/${cat.id}`} className="flex items-center gap-2 hover:text-blue-600">
+                      <Link
+                        to={`/shop/e/${cat.title}/${cat.id}`}
+                        className="flex items-center gap-2 hover:text-blue-600"
+                      >
                         <img src={cat.img} alt={cat.title} className="w-8 h-8 object-cover rounded" />
                         {cat.title}
                       </Link>
@@ -99,7 +110,7 @@ const Header = () => {
         </ul>
 
         {/* Right Icons */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 relative">
           {!user || !user.email ? (
             <div className="flex items-center gap-2 text-sm">
               <User size={16} className="text-blue-600" />
@@ -109,13 +120,36 @@ const Header = () => {
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <img src={getGravatarUrl(user.email)} alt="avatar" className="w-8 h-8 rounded-full" />
+              <img
+                src={getGravatarUrl(user.email)}
+                alt="avatar"
+                className="w-8 h-8 rounded-full"
+              />
               <span className="font-medium">{user.name}</span>
-              <button onClick={logout} className="bg-red-500 text-white px-3 py-1 rounded text-sm">Logout</button>
+              <button
+                onClick={logout}
+                className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+              >
+                Logout
+              </button>
             </div>
           )}
 
-          <Link to="/cart"><ShoppingCart size={20} /></Link>
+          {/* Cart Button */}
+          <button
+            className="relative"
+            onClick={() => setCartOpen(!cartOpen)}
+          >
+            <ShoppingCart size={20} />
+            {cart.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                {cart.length}
+              </span>
+            )}
+          </button>
+
+          {/* Cart Dropdown */}
+          {cartOpen && <CartDropdown />}
         </div>
       </nav>
     </header>

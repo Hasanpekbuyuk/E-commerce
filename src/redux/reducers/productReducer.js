@@ -1,12 +1,15 @@
 const initialState = {
   categories: [],
   productList: [],
+  product: null,      
   total: 0,
   limit: 12,
   offset: 0,
   filter: "",
   sort: "",
   category: null,
+  loading: false,      
+  error: null,         
   fetchState: "NOT_FETCHED",
 };
 
@@ -18,6 +21,11 @@ const SET_FILTER = "SET_FILTER";
 const SET_SORT = "SET_SORT";
 const SET_CATEGORY = "SET_CATEGORY";
 
+const PRODUCT_FETCH_REQUEST = "PRODUCT_FETCH_REQUEST";
+const PRODUCT_FETCH_SUCCESS = "PRODUCT_FETCH_SUCCESS";
+const PRODUCT_FETCH_FAIL = "PRODUCT_FETCH_FAIL";
+
+// Categories & Products
 export const setCategories = (data) => ({ type: SET_CATEGORIES, payload: data });
 export const setProductList = (data) => ({ type: SET_PRODUCT_LIST, payload: data });
 export const setTotal = (data) => ({ type: SET_TOTAL, payload: data });
@@ -42,6 +50,14 @@ export default function productReducer(state = initialState, action) {
       return { ...state, sort: action.payload };
     case SET_CATEGORY:
       return { ...state, category: action.payload };
+
+    case PRODUCT_FETCH_REQUEST:
+      return { ...state, loading: true, error: null };
+    case PRODUCT_FETCH_SUCCESS:
+      return { ...state, loading: false, product: action.payload };
+    case PRODUCT_FETCH_FAIL:
+      return { ...state, loading: false, error: action.payload };
+
     default:
       return state;
   }

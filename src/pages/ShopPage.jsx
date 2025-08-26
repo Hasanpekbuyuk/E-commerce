@@ -1,3 +1,4 @@
+// src/pages/ShopPage.jsx
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -27,22 +28,25 @@ const sponsors = [
 const ShopPage = () => {
   const dispatch = useDispatch();
   const { categoryId } = useParams();
-  const { productList, fetchState, total, filter, sort } = useSelector(
+  const { productList, fetchState, total, filter, sort, categories: allCategories } = useSelector(
     (state) => state.product
   );
 
   const [currentPage, setCurrentPage] = useState(0);
   const productsPerPage = 12;
 
+  // URL’den kategori al
   useEffect(() => {
     if (categoryId) dispatch(setCategory(categoryId));
   }, [categoryId, dispatch]);
 
+  // Parametreler değiştikçe ürünleri çek (ilk sayfa)
   useEffect(() => {
     setCurrentPage(0);
     dispatch(fetchProducts({ limit: productsPerPage, offset: 0 }));
   }, [dispatch, categoryId, filter, sort]);
 
+  // React Paginate click
   const handlePageClick = (data) => {
     const selectedPage = data.selected;
     const offset = selectedPage * productsPerPage;
@@ -117,17 +121,23 @@ const ShopPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
-          {productList.map((p) => (
-            <ProductCard
-              key={p.id}
-              id={p.id}
-              image={p.images[0]?.url}
-              colors={p.colors || []}
-              name={p.name}
-              description={p.description}
-              price={p.price}
-            />
-          ))}
+          {productList.map((p) => {
+            const cat = allCategories.find(c => c.id === p.category_id);
+            return (
+              <ProductCard
+                key={p.id}
+                id={p.id}
+                gender={cat.gender || "unisex"}
+                categoryName={cat?.title || "category"}
+                categoryId={cat?.id}
+                image={p.images[0]?.url}
+                colors={p.colors || []}
+                name={p.name}
+                description={p.description}
+                price={p.price}
+              />
+            );
+          })}
         </div>
       )}
 

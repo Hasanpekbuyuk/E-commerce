@@ -8,13 +8,10 @@ import FeaturedPosts from "../components/FeaturedPosts";
 const HomePage = () => {
   return (
     <div className="space-y-8">
-      {/* Hero Slider */}
       <HeroSlider />
 
-      {/* Kategori Seçimi */}
       <CategoryPick />
 
-      {/* Ürün Listesi */}
       <ProductList />
       
       <Slider />

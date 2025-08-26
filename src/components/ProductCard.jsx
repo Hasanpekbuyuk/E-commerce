@@ -1,17 +1,32 @@
 // src/components/ProductCard.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
-const ProductCard = ({ id, image, colors, name, description, price }) => {
+// Helper: string → slug
+const slugify = (text) =>
+  text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "");
+
+const ProductCard = ({ id, gender, categoryName, categoryId, image, colors, name, description, price }) => {
+  const history = useHistory();
+  const productNameSlug = slugify(name);
+
+  const handleClick = () => {
+    history.push(`/shop/${gender}/${categoryName}/${categoryId}/${productNameSlug}/${id}`);
+  };
+
   return (
-    <Link to={`/product/${id}`} className="flex flex-col items-center text-center space-y-3">
+    <div
+      className="flex flex-col items-center text-center space-y-3 cursor-pointer hover:shadow-lg transition-shadow"
+      onClick={handleClick}
+    >
       {/* Ürün Resmi */}
       <div className="w-full">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-auto object-cover"
-        />
+        <img src={image} alt={name} className="w-full h-auto object-cover rounded" />
       </div>
 
       {/* Başlık ve Açıklama */}
@@ -35,7 +50,7 @@ const ProductCard = ({ id, image, colors, name, description, price }) => {
           ></span>
         ))}
       </div>
-    </Link>
+    </div>
   );
 };
 
