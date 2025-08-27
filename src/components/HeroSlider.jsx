@@ -56,9 +56,11 @@ export default function Slider() {
                   {slide.title}
                 </h2>
                 <p className="text-sm md:text-base text-gray-100">{slide.text}</p>
+                <a href="/shop">
                 <button className="bg-[#2DC071] hover:bg-[#26a763] text-white px-6 py-3 rounded">
                   {slide.button}
                 </button>
+                </a>
               </div>
             </div>
           </div>

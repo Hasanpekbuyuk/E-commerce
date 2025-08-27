@@ -42,9 +42,11 @@ const ProductDetailPage = () => {
   const getGenderText = (g) =>
     g === "k" ? "kadın" : g === "e" ? "erkek" : "unisex";
 
-  // ✅ Sepete ekleme fonksiyonu
-  const handleAddToCart = () => {
+  const handleAddToCart = (redirect = false) => {
     dispatch(addToCart(product));
+     if (redirect) {
+    history.push("/cart");
+  }
   };
 
   return (
@@ -124,15 +126,15 @@ const ProductDetailPage = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-4">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded">
+            <button onClick={() => handleAddToCart(true)} className="bg-blue-500 text-white px-4 py-2 rounded">
               Buy Now
             </button>
             <button className="border p-2 rounded">
               <Heart size={18} />
             </button>
-            {/* ✅ Sepete ekleme */}
+
             <button
-              onClick={handleAddToCart}
+              onClick={() => handleAddToCart(false)}
               className="border p-2 rounded hover:bg-gray-100"
             >
               <ShoppingCart size={18} />

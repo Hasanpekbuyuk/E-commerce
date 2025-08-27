@@ -1,5 +1,5 @@
-import { ShoppingCart, User, Instagram, Twitter } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ShoppingCart, User, Instagram, Twitter, Heart } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -14,10 +14,15 @@ const Header = () => {
   const cart = useSelector((state) => state.cart.cart);
   const dispatch = useDispatch();
   const [cartOpen, setCartOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
+
+    useEffect(() => {
+    setCartOpen(false);
+  }, [location]);
 
   const logout = () => {
     dispatch(setUser({}));
@@ -146,6 +151,10 @@ const Header = () => {
                 {cart.length}
               </span>
             )}
+          </button>
+
+          <button>
+            <Heart size={20} />
           </button>
 
           {/* Cart Dropdown */}

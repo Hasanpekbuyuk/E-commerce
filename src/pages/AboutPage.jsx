@@ -1,4 +1,3 @@
-// src/pages/AboutPage.jsx
 import React from "react";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 
@@ -90,7 +89,9 @@ const AboutPage = () => {
 
       {/* Team Section */}
       <div className="text-center space-y-8">
+        <a href="/team" className="hover:text-blue-500">
         <h2 className="text-2xl font-bold">Meet Our Team</h2>
+        </a>
         <p className="text-gray-500 max-w-xl mx-auto">
           Problems trying to resolve the conflict between the two major realms
           of Classical physics: Newtonian mechanics

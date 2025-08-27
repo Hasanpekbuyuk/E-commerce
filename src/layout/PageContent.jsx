@@ -7,6 +7,7 @@ import TeamPage from "../pages/TeamPage";
 import AboutPage from "../pages/AboutPage";
 import SignupPage from "../pages/SignupPage"
 import LoginPage from "../pages/LoginPage";
+import ShoppingCartPage from "../pages/ShoppingCartPage";
 
 
 const PageContent = () => {
@@ -24,6 +25,8 @@ const PageContent = () => {
         <Route path="/about" component={AboutPage} />
         <Route path="/register" component={SignupPage} />
         <Route path="/login" component={LoginPage} />
+        <Route path="/cart" component={ShoppingCartPage} />
+
       </Switch>
     </main>
   );

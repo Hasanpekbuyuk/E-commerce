@@ -1,4 +1,3 @@
-// src/pages/TeamPage.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
@@ -7,47 +6,47 @@ const teamMembers = [
   {
     name: "Gökhan Özdemir",
     role: "Project Manager",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
   {
     name: "Hasan Pekbüyük",
     role: "Full Stack Developer",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
   {
     name: "username",
     role: "Frontend Developer",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
   {
     name: "username",
     role: "Frontend Developer",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
   {
     name: "username",
     role: "Frontend Developer",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
   {
     name: "username",
     role: "Frontend Developer",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
   {
     name: "username",
     role: "Frontend Developer",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
   {
     name: "username",
     role: "Frontend Developer",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
   {
     name: "username",
     role: "Frontend Developer",
-    image: "/images/team2.jpg",
+    image: "/images/team3.jpg",
   },
 ];
 
