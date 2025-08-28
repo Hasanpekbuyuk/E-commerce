@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addToCart, decreaseFromCart, removeFromCart } from "../redux/actions/cartActions";
 import { X } from "lucide-react";
+import { useHistory } from "react-router-dom";
 
 export default function ShoppingCartPage() {
   const cart = useSelector((state) => state.cart.cart);
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const [selectedItems, setSelectedItems] = useState([]);
 
@@ -131,7 +133,7 @@ export default function ShoppingCartPage() {
           <span>${grandTotal.toFixed(2)}</span>
         </div>
 
-        <button
+        <button onClick={() => history.push("/create-order")}
           className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-800 transition"
         >
           Create Order
