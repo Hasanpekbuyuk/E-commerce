@@ -7,7 +7,11 @@ import {
   addAddress,
   updateAddressAction,
   deleteAddressAction,
-  setLoading // yeni ekledik
+  setLoading,
+  setCards,
+  addCard,
+  updateCardAction,
+  deleteCardAction
 } from "../reducers/clientReducer";
 
 export const fetchRoles = () => async (dispatch, getState) => {
@@ -86,8 +90,6 @@ export const fetchAddresses = () => async (dispatch) => {
 export const createAddress = (addressData, callback) => async (dispatch) => {
   try {
     const response = await api.post("/user/address", addressData);
-    console.log("New address response:", response.data);
-
     const newAddress = response.data[0] ?? response.data;
 
     dispatch(addAddress(newAddress));
@@ -116,6 +118,49 @@ export const removeAddress = (addressId, callback) => async (dispatch) => {
     if (callback) callback(null);
   } catch (error) {
     console.error("Adres silinemedi:", error);
+    if (callback) callback(error);
+  }
+};
+
+export const fetchCards = () => async (dispatch) => {
+  try {
+    const response = await api.get("/user/card");
+    dispatch(setCards(response.data));
+  } catch (error) {
+    console.error("Kartlar alınamadı:", error);
+  }
+};
+
+export const createCard = (cardData, callback) => async (dispatch) => {
+  try {
+    const response = await api.post("/user/card", cardData);
+    const newCard = response.data[0] ?? response.data;
+    dispatch(addCard(newCard));
+    if (callback) callback(null, newCard);
+  } catch (error) {
+    console.error("Kart eklenemedi:", error);
+    if (callback) callback(error);
+  }
+};
+
+export const editCard = (cardData, callback) => async (dispatch) => {
+  try {
+    const response = await api.put("/user/card", cardData);
+    dispatch(updateCardAction(response.data));
+    if (callback) callback(null, response.data);
+  } catch (error) {
+    console.error("Kart güncellenemedi:", error);
+    if (callback) callback(error);
+  }
+};
+
+export const removeCard = (cardId, callback) => async (dispatch) => {
+  try {
+    await api.delete(`/user/card/${cardId}`);
+    dispatch(deleteCardAction(cardId));
+    if (callback) callback(null);
+  } catch (error) {
+    console.error("Kart silinemedi:", error);
     if (callback) callback(error);
   }
 };

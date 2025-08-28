@@ -9,3 +9,8 @@ export const addAddress = (address) => ({ type: ADD_ADDRESS, payload: address })
 export const updateAddressAction = (address) => ({ type: UPDATE_ADDRESS, payload: address });
 export const deleteAddressAction = (addressId) => ({ type: DELETE_ADDRESS, payload: addressId });
 export const setLoading = (loading) => ({ type: SET_LOADING, payload: loading });
+
+export const setCards = (cards) => ({ type: SET_CARDS, payload: cards });
+export const addCard = (card) => ({ type: ADD_CARD, payload: card });
+export const updateCardAction = (card) => ({ type: UPDATE_CARD, payload: card });
+export const deleteCardAction = (cardId) => ({ type: DELETE_CARD, payload: cardId });
