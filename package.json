@@ -16,6 +16,7 @@
     "lucide-react": "^0.536.0",
     "md5": "^2.3.0",
     "react": "^19.1.0",
+    "react-collapse": "^5.1.1",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.62.0",
     "react-hot-toast": "^2.6.0",

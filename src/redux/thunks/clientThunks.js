@@ -13,6 +13,7 @@ import {
   updateCardAction,
   deleteCardAction
 } from "../reducers/clientReducer";
+import { setCart } from "../reducers/cartReducer";
 
 export const fetchRoles = () => async (dispatch, getState) => {
   const { roles } = getState().client;
@@ -83,7 +84,7 @@ export const fetchAddresses = () => async (dispatch) => {
     const response = await api.get("/user/address");
     dispatch(setAddresses(response.data));
   } catch (error) {
-    console.error("Adresler alınamadı:", error);
+    console.error("Addresses could not be retrieved:", error);
   }
 };
 
@@ -95,7 +96,7 @@ export const createAddress = (addressData, callback) => async (dispatch) => {
     dispatch(addAddress(newAddress));
     if (callback) callback(null, newAddress);
   } catch (error) {
-    console.error("Adres eklenemedi:", error);
+    console.error("Address could not be added:", error);
     if (callback) callback(error);
   }
 };
@@ -106,7 +107,7 @@ export const editAddress = (addressData, callback) => async (dispatch) => {
     dispatch(updateAddressAction(response.data));
     if (callback) callback(null, response.data);
   } catch (error) {
-    console.error("Adres güncellenemedi:", error);
+    console.error("Address could not be updated:", error);
     if (callback) callback(error);
   }
 };
@@ -117,7 +118,7 @@ export const removeAddress = (addressId, callback) => async (dispatch) => {
     dispatch(deleteAddressAction(addressId));
     if (callback) callback(null);
   } catch (error) {
-    console.error("Adres silinemedi:", error);
+    console.error("Address could not be deleted:", error);
     if (callback) callback(error);
   }
 };
@@ -127,7 +128,7 @@ export const fetchCards = () => async (dispatch) => {
     const response = await api.get("/user/card");
     dispatch(setCards(response.data));
   } catch (error) {
-    console.error("Kartlar alınamadı:", error);
+    console.error("Cards could not be retrieved:", error);
   }
 };
 
@@ -138,7 +139,7 @@ export const createCard = (cardData, callback) => async (dispatch) => {
     dispatch(addCard(newCard));
     if (callback) callback(null, newCard);
   } catch (error) {
-    console.error("Kart eklenemedi:", error);
+    console.error("Card could not be added:", error);
     if (callback) callback(error);
   }
 };
@@ -149,7 +150,7 @@ export const editCard = (cardData, callback) => async (dispatch) => {
     dispatch(updateCardAction(response.data));
     if (callback) callback(null, response.data);
   } catch (error) {
-    console.error("Kart güncellenemedi:", error);
+    console.error("Card could not be updated:", error);
     if (callback) callback(error);
   }
 };
@@ -160,7 +161,22 @@ export const removeCard = (cardId, callback) => async (dispatch) => {
     dispatch(deleteCardAction(cardId));
     if (callback) callback(null);
   } catch (error) {
-    console.error("Kart silinemedi:", error);
+    console.error("Card could not be deleted:", error);
+    if (callback) callback(error);
+  }
+};
+
+export const createOrder = (orderData, callback) => async (dispatch) => {
+  try {
+    const response = await api.post("/order", orderData);
+
+    dispatch(setCart([]));
+
+    alert("Congratulations! Your order has been successfully placed.");
+
+    if (callback) callback(null, response.data);
+  } catch (error) {
+    console.error("Order could not be created:", error);
     if (callback) callback(error);
   }
 };

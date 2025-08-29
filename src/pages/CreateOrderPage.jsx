@@ -6,7 +6,7 @@ import {
   editAddress,
   removeAddress,
 } from "../redux/thunks/clientThunks";
-import { setAddress } from "../redux/reducers/cartReducer";
+import { setAddress, clearAddress } from "../redux/reducers/cartReducer";
 import { useForm } from "react-hook-form";
 import { Redirect, useHistory } from "react-router-dom";
 
@@ -58,8 +58,12 @@ const CreateOrderPage = () => {
   const handleDelete = (id) => {
     dispatch(
       removeAddress(id, (err) => {
-        if (!err) dispatch(fetchAddresses());
-        else console.error(err);
+        if (!err) {
+          dispatch(fetchAddresses());
+          if (selectedAddress?.id === id) {
+            dispatch(clearAddress()); 
+          }
+        } else console.error(err);
       })
     );
   };
@@ -107,8 +111,9 @@ const CreateOrderPage = () => {
               {addressList.map((addr) => (
                 <li
                   key={addr.id}
-                  className={`border rounded p-3 flex flex-col space-y-2 ${selectedAddress?.id === addr.id ? "bg-green-50" : "bg-white"
-                    }`}
+                  className={`border rounded p-3 flex flex-col space-y-2 ${
+                    selectedAddress?.id === addr.id ? "bg-green-50" : "bg-white"
+                  }`}
                 >
                   <div className="flex justify-between items-center">
                     {/* Radio Button */}
@@ -133,9 +138,13 @@ const CreateOrderPage = () => {
                   </div>
 
                   <div className="text-sm text-gray-700 space-y-1">
-                    <p>{addr.name} {addr.surname}</p>
+                    <p>
+                      {addr.name} {addr.surname}
+                    </p>
                     <p>{addr.phone}</p>
-                    <p>{addr.city}, {addr.district}, {addr.neighborhood}</p>
+                    <p>
+                      {addr.city}, {addr.district}, {addr.neighborhood}
+                    </p>
                     <p>{addr.address}</p>
                   </div>
 
@@ -253,16 +262,17 @@ const CreateOrderPage = () => {
 
           <button
             onClick={() => {
-              if (!selectedAddress || !selectedAddress.id) {
+              if (!selectedAddress?.id) {
                 alert("Please select an address before continuing.");
                 return;
               }
               history.push("/payment");
             }}
-            className={`mt-6 w-full py-3 rounded-lg transition ${selectedAddress && selectedAddress.id
+            className={`mt-6 w-full py-3 rounded-lg transition ${
+              selectedAddress?.id
                 ? "bg-blue-600 text-white hover:bg-blue-800"
                 : "bg-gray-300 text-gray-600 cursor-not-allowed"
-              }`}
+            }`}
           >
             Save and Continue
           </button>

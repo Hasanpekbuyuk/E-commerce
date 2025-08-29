@@ -6,7 +6,8 @@ import {
   fetchCards,
   createCard,
   editCard,
-  removeCard
+  removeCard,
+  createOrder
 } from "../redux/thunks/clientThunks";
 import { setPayment } from "../redux/reducers/cartReducer";
 
@@ -18,6 +19,7 @@ const PaymentPage = () => {
   const loading = useSelector((state) => state.client.loading);
   const cards = useSelector((state) => state.client.creditCards);
   const selectedCard = useSelector((state) => state.cart.payment);
+  const selectedAddress = useSelector((state) => state.cart.address);
   const cart = useSelector((state) => state.cart.cart);
 
   const [showForm, setShowForm] = useState(false);
@@ -40,7 +42,7 @@ const PaymentPage = () => {
             reset();
             setShowForm(false);
             setEditMode(null);
-          } else console.error(err);
+          }
         })
       );
     } else {
@@ -50,7 +52,7 @@ const PaymentPage = () => {
             dispatch(fetchCards());
             reset();
             setShowForm(false);
-          } else console.error(err);
+          }
         })
       );
     }
@@ -60,7 +62,6 @@ const PaymentPage = () => {
     dispatch(
       removeCard(id, (err) => {
         if (!err) dispatch(fetchCards());
-        else console.error(err);
       })
     );
   };
@@ -71,8 +72,40 @@ const PaymentPage = () => {
     setShowForm(true);
   };
 
-  const handleSelect = (card) => {
+  const handleSelectCard = (card) => {
     dispatch(setPayment(card));
+  };
+
+  const handlePlaceOrder = () => {
+    if (!selectedCard?.id) return alert("Lütfen bir ödeme yöntemi seçin.");
+    if (!selectedAddress?.id) return alert("Lütfen bir adres seçin.");
+    if (cart.length === 0) return alert("Sepetiniz boş.");
+
+    const orderData = {
+      address_id: selectedAddress.id,
+      order_date: new Date().toISOString(),
+      card_no: selectedCard.card_no,
+      card_name: selectedCard.name_on_card,
+      card_expire_month: selectedCard.expire_month,
+      card_expire_year: selectedCard.expire_year,
+      card_ccv: 321, 
+      price:
+        cart.reduce((sum, item) => sum + item.product.price * item.count, 0) +
+        20,
+      products: cart.map((item) => ({
+        product_id: item.product.id,
+        count: item.count,
+        detail: item.product.detail || "",
+      })),
+    };
+
+    dispatch(
+      createOrder(orderData, (err, data) => {
+        if (!err) {
+          history.push("/orders"); 
+        }
+      })
+    );
   };
 
   const totalPrice = cart.reduce(
@@ -84,6 +117,15 @@ const PaymentPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
+      <div className="grid grid-cols-2 mb-6 text-center">
+        <div className="border-b-4 border-gray-300 text-gray-400 pb-2">
+          1. Address Information
+        </div>
+        <div className="border-b-4 border-blue-500 text-black-600 font-bold pb-2">
+          2. Payment Options
+        </div>
+      </div>
+
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Card List & Form */}
         <div className="lg:col-span-2">
@@ -95,6 +137,7 @@ const PaymentPage = () => {
               ← Back
             </button>
           </div>
+
           <h1 className="text-2xl font-bold mb-4">Payment Methods</h1>
 
           <div className="mb-6">
@@ -104,8 +147,9 @@ const PaymentPage = () => {
               {cards.map((card) => (
                 <li
                   key={card.id}
-                  className={`border rounded p-3 flex flex-col space-y-2 ${selectedCard?.id === card.id ? "bg-green-50" : "bg-white"
-                    }`}
+                  className={`border rounded p-3 flex flex-col space-y-2 ${
+                    selectedCard?.id === card.id ? "bg-green-50" : "bg-white"
+                  }`}
                 >
                   <div className="flex justify-between items-center">
                     <label className="flex items-center space-x-2">
@@ -113,7 +157,7 @@ const PaymentPage = () => {
                         type="radio"
                         name="selectedCard"
                         checked={selectedCard?.id === card.id}
-                        onChange={() => handleSelect(card)}
+                        onChange={() => handleSelectCard(card)}
                         className="form-radio text-blue-500"
                       />
                       <span className="font-semibold text-sm">
@@ -182,7 +226,6 @@ const PaymentPage = () => {
                     </option>
                   ))}
                 </select>
-
                 <select
                   {...register("expire_year")}
                   className="w-1/2 p-2 border rounded"
@@ -237,19 +280,15 @@ const PaymentPage = () => {
           </div>
 
           <button
-            onClick={() => {
-              if (!selectedCard || !selectedCard.id) {
-                alert("Please select a payment method before continuing.");
-                return;
-              }
-              history.push("/checkout");
-            }}
-            className={`mt-6 w-full py-3 rounded-lg transition ${selectedCard && selectedCard.id
-              ? "bg-blue-600 text-white hover:bg-blue-800"
-              : "bg-gray-300 text-gray-600 cursor-not-allowed"
+            onClick={handlePlaceOrder}
+            disabled={!selectedCard?.id || !selectedAddress?.id || cart.length === 0}
+            className={`mt-6 w-full py-3 rounded-lg transition 
+              ${!selectedCard?.id || !selectedAddress?.id || cart.length === 0
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-800"
               }`}
           >
-            Continue to Checkout
+            Place Order
           </button>
         </div>
       </div>

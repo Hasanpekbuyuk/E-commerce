@@ -1,7 +1,7 @@
-import { ShoppingCart, User, Instagram, Twitter, Heart } from "lucide-react";
+import { ShoppingCart, User, Instagram, Twitter, Heart, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import md5 from "md5";
 import { setUser } from "../redux/reducers/clientReducer";
@@ -14,14 +14,17 @@ const Header = () => {
   const cart = useSelector((state) => state.cart.cart);
   const dispatch = useDispatch();
   const [cartOpen, setCartOpen] = useState(false);
+  const [userDropdown, setUserDropdown] = useState(false);
   const location = useLocation();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-    useEffect(() => {
+  useEffect(() => {
     setCartOpen(false);
+    setUserDropdown(false);
   }, [location]);
 
   const logout = () => {
@@ -39,6 +42,16 @@ const Header = () => {
 
   const womenCategories = categories.filter((c) => c.gender === "k");
   const menCategories = categories.filter((c) => c.gender === "e");
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setUserDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="w-full relative">
@@ -59,7 +72,7 @@ const Header = () => {
       </div>
 
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-4 py-4 border-b">
+      <nav className="flex items-center justify-between px-4 py-4 border-b relative">
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold text-slate-800">
           Bandage
@@ -124,19 +137,37 @@ const Header = () => {
               <Link to="/register" className="text-blue-600 hover:underline">Register</Link>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <img
-                src={getGravatarUrl(user.email)}
-                alt="avatar"
-                className="w-8 h-8 rounded-full"
-              />
-              <span className="font-medium">{user.name}</span>
+            <div className="relative" ref={dropdownRef}>
               <button
-                onClick={logout}
-                className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                onClick={() => setUserDropdown(!userDropdown)}
+                className="flex items-center gap-2"
               >
-                Logout
+                <img
+                  src={getGravatarUrl(user.email)}
+                  alt="avatar"
+                  className="w-8 h-8 rounded-full"
+                />
+                <span className="font-medium">{user.name}</span>
+                <ChevronDown size={16} />
               </button>
+
+              {/* Dropdown */}
+              {userDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
+                  <Link
+                    to="/orders"
+                    className="block px-4 py-3 text-sm text-gray-800 hover:bg-blue-100 transition"
+                  >
+                    My Orders
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-left px-4 py-3 text-sm text-gray-800 hover:bg-red-500 transition"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

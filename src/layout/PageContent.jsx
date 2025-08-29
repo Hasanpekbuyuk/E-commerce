@@ -10,6 +10,7 @@ import LoginPage from "../pages/LoginPage";
 import ShoppingCartPage from "../pages/ShoppingCartPage";
 import CreateOrderPage from "../pages/CreateOrderPage";
 import PaymentPage from "../pages/PaymentPage";
+import OrdersPage from "../pages/OrdersPage";
 
 
 const PageContent = () => {
@@ -30,6 +31,7 @@ const PageContent = () => {
         <Route path="/cart" component={ShoppingCartPage} />
         <Route path="/create-order" component={CreateOrderPage} />
         <Route path="/payment" component={PaymentPage} />
+        <Route path="/orders" component={OrdersPage} />
 
       </Switch>
     </main>

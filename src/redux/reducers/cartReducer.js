@@ -1,4 +1,5 @@
 const CART_STORAGE_KEY = "cartItems";
+const ADDRESS_STORAGE_KEY = "selectedAddress";
 
 const getInitialCart = () => {
   try {
@@ -13,7 +14,7 @@ const getInitialCart = () => {
 const initialState = {
   cart: getInitialCart(),
   payment: {},
-  address: {},
+  address: JSON.parse(localStorage.getItem(ADDRESS_STORAGE_KEY)) || {},
 };
 
 const SET_CART = "SET_CART";
@@ -29,6 +30,14 @@ const saveCartToLocalStorage = (cart) => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   } catch (err) {
     console.error("Failed to save cart to localStorage:", err);
+  }
+};
+
+const saveAddressToLocalStorage = (address) => {
+  try {
+    localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(address));
+  } catch (err) {
+    console.error("Failed to save address to localStorage:", err);
   }
 };
 
@@ -94,6 +103,7 @@ export default function cartReducer(state = initialState, action) {
       return { ...state, payment: action.payload };
 
     case SET_ADDRESS:
+      saveAddressToLocalStorage(action.payload);
       return { ...state, address: action.payload };
 
     default:
@@ -104,6 +114,7 @@ export default function cartReducer(state = initialState, action) {
 export const setCart = (cart) => ({ type: SET_CART, payload: cart });
 export const setPayment = (payment) => ({ type: SET_PAYMENT, payload: payment });
 export const setAddress = (address) => ({ type: SET_ADDRESS, payload: address });
+export const clearAddress = () => ({ type: SET_ADDRESS, payload: {} });
 
 export const addToCart = (product) => ({ type: ADD_TO_CART, payload: product });
 export const removeFromCart = (productId) => ({ type: REMOVE_FROM_CART, payload: productId });
