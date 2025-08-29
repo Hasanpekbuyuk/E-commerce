@@ -34,8 +34,11 @@ export const loginUser = (email, password, rememberMe = false, callback) => asyn
 
     dispatch(setUser(userData));
 
-    if (rememberMe && userData.token) {
-      localStorage.setItem("token", userData.token);
+    if (userData.token) {
+      if (rememberMe) {
+        localStorage.setItem("token", userData.token);
+      } 
+      document.cookie = `token=${userData.token}; path=/`;
       api.defaults.headers.common["Authorization"] = userData.token;
     }
 
